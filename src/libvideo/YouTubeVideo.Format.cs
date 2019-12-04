@@ -53,6 +53,10 @@ namespace VideoLibrary
                     case 271:
                     case 272:
                     case 278:
+                    case 298:
+                    case 299:
+                    case 302:
+                    case 303:
                     case 313:
                         return AdaptiveKind.Video;
                     case 139:
@@ -154,6 +158,8 @@ namespace VideoLibrary
                     case 102:
                     case 136:
                     case 247:
+                    case 298:
+                    case 302:
                         return 720;
                     case 35:
                     case 44:
@@ -164,6 +170,8 @@ namespace VideoLibrary
                     case 46:
                     case 137:
                     case 248:
+                    case 299:
+                    case 303:
                         return 1080;
                     case 38:
                         return 3072; // what
@@ -216,6 +224,8 @@ namespace VideoLibrary
                     case 139:
                     case 140:
                     case 141:
+                    case 298:
+                    case 299:
                         return VideoFormat.Mp4;
                     case 43:
                     case 44:
@@ -237,6 +247,8 @@ namespace VideoLibrary
                     case 249:
                     case 250:
                     case 251:
+                    case 302:
+                    case 303:
                     case 313:
                         return VideoFormat.WebM;
                     default:

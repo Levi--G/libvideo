@@ -2,31 +2,19 @@
 
 ![icon](icons/icon_200.png)
 
-[![NuGet](https://img.shields.io/nuget/dt/VideoLibrary.svg)](https://www.nuget.org/packages/VideoLibrary)
-[![NuGet](https://img.shields.io/nuget/v/VideoLibrary.svg)](https://www.nuget.org/packages/VideoLibrary)
-[![license](https://img.shields.io/github/license/i3arnon/libvideo.svg)](LICENSE)
-[![Join the chat at https://gitter.im/jamesqo/libvideo](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/jamesqo/libvideo?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![license](https://img.shields.io/github/license/Levi--G/libvideo.svg)](LICENSE)
 
 libvideo (aka VideoLibrary) is a modern .NET library for downloading YouTube videos. It is portable to most platforms and is very lightweight.
+This is a fork of [i3arnon/libvideo](https://github.com/i3arnon/libvideo), it includes a few fixes to address some issues with youtube decryption.
 
 ## Installation
 
-You can grab a copy of the library [on NuGet](https://www.nuget.org/packages/VideoLibrary) by running:
-
-    Install-Package VideoLibrary
-
+This fork has no nuget package but can be downloaded from releases instead.
 Alternatively, you can try building the repo if you like your assemblies extra-fresh.
 
 ## Supported Platforms
 
-- .NET Framework 4.5+
-- Windows 10 Universal apps
-- Portable Class Libraries
-- Xamarin.iOS
-- Xamarin.Android
-- Mono (Mac/Linux)
-- Windows 8.1 and 8.0
-- Windows Phone 8.1
+- .NET Standard 2.0
 
 ## Getting Started
 
@@ -43,17 +31,6 @@ void SaveVideoToDisk(string link)
 }
 ```
 
-Or, if you use Visual Basic:
-
-```vbnet
-Imports VideoLibrary
-
-Sub SaveVideoToDisk(ByVal link As String)
-     Dim video = YouTube.Default.GetVideo(link)
-     File.WriteAllBytes("C:\" & video.FullName, video.GetBytes())
-End Sub
-```
-
 If you'd like to check out some more of our features, take a look at our [docs](docs/README.md). You can also refer to our [example application](samples/Valks/Valks/Program.cs) (named Valks, yes, I know, it's a silly name) if you're looking for a more comprehensive sample.
 
 ## License
@@ -62,23 +39,22 @@ libvideo is licensed under the [BSD 2-clause license](LICENSE).
 
 ## FAQ
 
-### What's the difference between libvideo and YoutubeExtractor?
+### What is the difference in this fork?
 
-libvideo:
+Since i have a gui based on this, i try to keep it up-to-date as much as possible
+however other forks are also active and at times may be ahead of this one so feel free to swap alot!
+If you need the specifics you can check my badly-commented commits
 
-- Can be used in Portable Class Libraries
-- Supports WinRT projects (e.g. Windows 10)
-- Is roughly 400% faster ([yes, it's true](tests/Speed.Test/Speed.Test/Program.cs))
+### Where do i submit any issues?
 
-YoutubeExtractor:
+If its an issue on this fork you can do that right [here](https://github.com/Levi--G/libvideo/issues).
+If it is for the main repo/other forks, please don't use this issue tracker.
 
-- Supports Silverlight
-- Supports Flash audio extraction
+### What do i submit in  the issue?
 
-### Can I switch from YoutubeExtractor without having to refactor my code?
+At the very least the youtube id that doesn't work, any errors or extra info is always handy.
+Make sure however the video is not region-locked nor age-restricted as that will never work.
 
-Absolutely! Check out our [libvideo.compat](https://www.nuget.org/packages/VideoLibrary.Compat/) package. It has the same API as YoutubeExtractor, but uses libvideo as its backend so your application will get a major speed boost.
+### Do you accept pull-requests?
 
-### Do you accept donations?
-
-Thanks! I'm flattered, but it's not really necessary. If anything, you should donate to the creator of [YoutubeExtractor](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=daume%2edennis%40gmail%2ecom&lc=US&item_name=YoutubeExtractor&no_note=0&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHostedGuest), because this project wouldn't have happened if it weren't for him.
+Try and see ;)

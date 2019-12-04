@@ -1,11 +1,13 @@
-﻿using VideoLibrary.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using VideoLibrary.Helpers;
 
 namespace VideoLibrary
 {
@@ -107,6 +109,17 @@ namespace VideoLibrary
         private string ParseJsPlayer(string source)
         {
             string jsPlayer = Json.GetKey("js", source).Replace(@"\/", "/");
+            //<script src="/yts/jsbin/player_ias-vfl9X5OgR/en_US/base.js"  name="player_ias/base" ></script>
+            if (string.IsNullOrWhiteSpace(jsPlayer))
+            {
+                try
+                {
+                    string pattern = @"<script\s+src=""(\/yts[^""]+\.js)""\s*name=""player_ias\/base""\s*>";
+                    Match match = Regex.Match(source, pattern, RegexOptions.Multiline | RegexOptions.IgnoreCase);
+                    jsPlayer = match?.Groups.OfType<Group>().Skip(1).FirstOrDefault()?.Value;
+                }
+                catch { }
+            }
             if (string.IsNullOrWhiteSpace(jsPlayer))
             {
                 return null;
@@ -122,12 +135,12 @@ namespace VideoLibrary
             {
                 jsPlayer = $"https:{jsPlayer}";
             }
-            
+
             return jsPlayer;
         }
-
+        [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
         // TODO: Consider making this static...
-        private UnscrambledQuery Unscramble(string queryString)
+        private SignatureQuery Unscramble(string queryString)
         {
             queryString = queryString.Replace(@"\u0026", "&");
             var query = new Query(queryString);
@@ -136,38 +149,40 @@ namespace VideoLibrary
             bool encrypted = false;
             string signature;
 
+            query.TryGetValue("sp", out var _signatureKey);
+
+            _signatureKey = string.IsNullOrWhiteSpace(_signatureKey) ? "signature" : _signatureKey;
+
             if (query.TryGetValue("s", out signature))
             {
                 encrypted = true;
-                uri += GetSignatureAndHost(signature, query);
             }
             else if (query.TryGetValue("sig", out signature))
-                uri += GetSignatureAndHost(signature, query);
+            {
+                encrypted = false;
+            }
 
             uri = WebUtility.UrlDecode(
                 WebUtility.UrlDecode(uri));
 
-            var uriQuery = new Query(uri);
+            var q = new SignatureQuery(uri, _signatureKey, encrypted);
 
-            if (!uriQuery.ContainsKey("ratebypass"))
-                uri += "&ratebypass=yes";
+            if (signature != null)
+            {
+                q.Query.AddIfNotExists(_signatureKey, WebUtility.UrlDecode(WebUtility.UrlDecode(signature)));
+            }
 
-            return new UnscrambledQuery(uri, encrypted);
+            if (query.TryGetValue("fallback_host", out var host))
+                q.Query.AddIfNotExists("fallback_host", host);
+
+            //q = new SignatureQuery(WebUtility.UrlDecode(WebUtility.UrlDecode(q.Uri)), q.Signaturekey, q.IsEncrypted);
+
+            q.Query.AddIfNotExists("ratebypass", "yes");
+
+            return q;
         }
 
-        private string GetSignatureAndHost(string signature, Query query)
-        {
-            string result = "&signature=" + signature;
-
-            string host;
-
-            if (query.TryGetValue("fallback_host", out host))
-                result += "&fallback_host=" + host;
-
-            return result;
-        }
-
-        private UnscrambledQuery UnscrambleManifestUri(string manifestUri)
+        private SignatureQuery UnscrambleManifestUri(string manifestUri)
         {
             int start = manifestUri.IndexOf(Playback) + Playback.Length;
             string baseUri = manifestUri.Substring(0, start);
@@ -187,7 +202,7 @@ namespace VideoLibrary
                 }
             }
 
-            return new UnscrambledQuery(builder.ToString(), false);
+            return new SignatureQuery(builder.ToString(), null, false);
         }
     }
 }

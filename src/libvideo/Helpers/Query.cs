@@ -50,19 +50,31 @@ namespace VideoLibrary.Helpers
                 int equals = pair.IndexOf('=');
                 string key;
                 string value;
-                if (equals != pair.LastIndexOf('='))
-                {
-                    key = pair.Substring(0, equals);
-                    value = String.Empty;
-                }
-                else
-                {
-                    key = pair.Substring(0, equals);
-                    value = pair.Substring(equals + 1);
-                }
+
+                key = pair.Substring(0, equals);
+                value = equals < pair.Length ? pair.Substring(equals + 1) : string.Empty;
 
                 pairs[i] = new KeyValuePair<string, string>(key, value);
             }
+            //for (int i = 0; i < keyValues.Length; i++)
+            //{
+            //    string pair = keyValues[i];
+            //    int equals = pair.IndexOf('=');
+            //    string key;
+            //    string value;
+            //    if (equals != pair.LastIndexOf('='))
+            //    {
+            //        key = pair.Substring(0, equals);
+            //        value = String.Empty;
+            //    }
+            //    else
+            //    {
+            //        key = pair.Substring(0, equals);
+            //        value = pair.Substring(equals + 1);
+            //    }
+
+            //    pairs[i] = new KeyValuePair<string, string>(key, value);
+            //}
 
             this.count = keyValues.Length;
         }
@@ -243,6 +255,12 @@ namespace VideoLibrary.Helpers
 
                 Array.Resize(ref pairs, capacity);
             }
+        }
+
+        public void AddIfNotExists(string key, string value)
+        {
+            if (!ContainsKey(key))
+                Add(key, value);
         }
     }
 }
