@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -67,42 +68,72 @@ namespace VideoLibrary
             }
 
             string map = Json.GetKey("url_encoded_fmt_stream_map", source);
-            var queries = map.Split(',').Select(Unscramble);
-
-            foreach (var query in queries)
-                yield return new YouTubeVideo(title, query, jsPlayer);
-
+            if (!string.IsNullOrEmpty(map))
+            {
+                var queries = map.Split(',').Where(s => !string.IsNullOrEmpty(s)).Select(Unscramble);
+                foreach (var query in queries)
+                    yield return new YouTubeVideo(title, query, jsPlayer);
+            }
             string adaptiveMap = Json.GetKey("adaptive_fmts", source);
-
-            // If there is no adaptive_fmts key, then in the file
-            // will be dashmpd key containing link to a XML
-            // file containing links and other data
-            if (adaptiveMap == String.Empty)
+            if (adaptiveMap != String.Empty)
+            {
+                var queries = adaptiveMap.Split(',').Select(Unscramble);
+                foreach (var query in queries)
+                    yield return new YouTubeVideo(title, query, jsPlayer);
+            }
+            else
             {
                 using (HttpClient hc = new HttpClient())
                 {
                     string temp = Json.GetKey("dashmpd", source);
-                    temp = WebUtility.UrlDecode(temp).Replace(@"\/", "/");
-
-                    var manifest = hc.GetStringAsync(temp)
-                        .GetAwaiter().GetResult()
-                        .Replace(@"\/", "/");
-
-                    var uris = Html.GetUrisFromManifest(manifest);
-
-                    foreach (var v in uris)
+                    if (!string.IsNullOrEmpty(temp))
                     {
-                        yield return new YouTubeVideo(title,
-                            UnscrambleManifestUri(v),
-                            jsPlayer);
+                        temp = WebUtility.UrlDecode(temp).Replace(@"\/", "/");
+
+                        var manifest = hc.GetStringAsync(temp)
+                            .GetAwaiter().GetResult()
+                            .Replace(@"\/", "/");
+
+                        var uris = Html.GetUrisFromManifest(manifest);
+
+                        foreach (var v in uris)
+                        {
+                            yield return new YouTubeVideo(title,
+                                UnscrambleManifestUri(v),
+                                jsPlayer);
+                        }
                     }
                 }
             }
-            else
+            var playerResponseMap = Json.GetKey("player_response", source);
+            var playerResponseJToken = JToken.Parse(Regex.Unescape(playerResponseMap).Replace(@"\u0026", "&"));
+            if (playerResponseJToken.SelectToken("playabilityStatus.status")?.Value<string>().ToLower() == "error")
             {
-                queries = adaptiveMap.Split(',').Select(Unscramble);
-                foreach (var query in queries)
-                    yield return new YouTubeVideo(title, query, jsPlayer);
+                yield break;
+            }
+            if (string.IsNullOrWhiteSpace(playerResponseJToken.SelectToken("playabilityStatus.reason")?.Value<string>()))
+            {
+                if (playerResponseJToken.SelectToken("videoDetails.isLive")?.Value<bool>() == true)
+                {
+                    yield break;
+                }
+                var streams = (playerResponseJToken.SelectToken("streamingData.formats", false)?.Children() ?? Enumerable.Empty<JToken>())
+                    .Concat(playerResponseJToken.SelectToken("streamingData.adaptiveFormats", false)?.Children() ?? Enumerable.Empty<JToken>());
+                foreach (var item in streams)
+                {
+                    var urlValue = item.SelectToken("url")?.Value<string>();
+                    if (!string.IsNullOrEmpty(urlValue))
+                    {
+                        var query = new SignatureQuery(urlValue, null, false);
+                        yield return new YouTubeVideo(title, query, jsPlayer);
+                        continue;
+                    }
+                    var cipherValue = item.SelectToken("cipher")?.Value<string>();
+                    if (!string.IsNullOrEmpty(cipherValue))
+                    {
+                        yield return new YouTubeVideo(title, Unscramble(cipherValue), jsPlayer);
+                    }
+                }
             }
         }
 
@@ -174,8 +205,6 @@ namespace VideoLibrary
 
             if (query.TryGetValue("fallback_host", out var host))
                 q.Query.AddIfNotExists("fallback_host", host);
-
-            //q = new SignatureQuery(WebUtility.UrlDecode(WebUtility.UrlDecode(q.Uri)), q.Signaturekey, q.IsEncrypted);
 
             q.Query.AddIfNotExists("ratebypass", "yes");
 

@@ -29,7 +29,7 @@ namespace VideoLibrary.Helpers
                 if (source[start++] != '"') // 'v'
                     continue;
                 int end = start;
-                while (source[end] != '"') // "value\""
+                while (source[end] != '"' || source[end - 1] == '\\') // "value\""
                     end++;
                 return source.Substring(start, end - start);
             }
