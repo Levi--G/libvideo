@@ -83,10 +83,10 @@ namespace VideoLibrary
             }
             else
             {
-                using (HttpClient hc = new HttpClient())
+                string temp = Json.GetKey("dashmpd", source);
+                if (!string.IsNullOrEmpty(temp))
                 {
-                    string temp = Json.GetKey("dashmpd", source);
-                    if (!string.IsNullOrEmpty(temp))
+                    using (HttpClient hc = new HttpClient())
                     {
                         temp = WebUtility.UrlDecode(temp).Replace(@"\/", "/");
 
@@ -156,7 +156,7 @@ namespace VideoLibrary
                 return null;
             }
 
-            if (jsPlayer.StartsWith("/yts"))
+            if (jsPlayer.StartsWith("/"))
             {
                 return $"https://www.youtube.com{jsPlayer}";
             }
