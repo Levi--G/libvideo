@@ -59,6 +59,7 @@ namespace VideoLibrary
                     case VideoFormat.Mp4: return ".mp4";
                     case VideoFormat.WebM: return ".webm";
                     case VideoFormat.Unknown: return string.Empty;
+                    case VideoFormat.AV01: return ".mp4";
                     default:
                         throw new NotImplementedException($"Format {Format} is unrecognized! Please file an issue at libvideo on GitHub.");
                 }
@@ -69,7 +70,7 @@ namespace VideoLibrary
         {
             get
             {
-                var builder = 
+                var builder =
                     new StringBuilder(Title)
                     .Append(FileExtension);
 

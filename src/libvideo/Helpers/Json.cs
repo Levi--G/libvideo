@@ -18,7 +18,7 @@ namespace VideoLibrary.Helpers
             while (true)
             {
                 index = source.IndexOf(quotedKey, index); // '"'
-                if (index == -1) return string.Empty;
+                if (index == -1) return null;
                 index += quotedKey.Length; // ' '
 
                 int start = index;

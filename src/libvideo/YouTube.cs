@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -74,8 +75,8 @@ namespace VideoLibrary
                 foreach (var query in queries)
                     yield return new YouTubeVideo(title, query, jsPlayer);
             }
-            string adaptiveMap = Json.GetKey("adaptive_fmts", source);
-            if (adaptiveMap != String.Empty)
+            string adaptiveMap = Json.GetKey("adaptive_fmts", source);// ?? Json.GetKey("adaptiveFormats", source);
+            if (!string.IsNullOrEmpty(adaptiveMap))
             {
                 var queries = adaptiveMap.Split(',').Select(Unscramble);
                 foreach (var query in queries)
@@ -106,32 +107,45 @@ namespace VideoLibrary
                 }
             }
             var playerResponseMap = Json.GetKey("player_response", source);
-            var playerResponseJToken = JToken.Parse(Regex.Unescape(playerResponseMap).Replace(@"\u0026", "&"));
-            if (playerResponseJToken.SelectToken("playabilityStatus.status")?.Value<string>().ToLower() == "error")
+            if (!string.IsNullOrEmpty(playerResponseMap))
             {
-                yield break;
-            }
-            if (string.IsNullOrWhiteSpace(playerResponseJToken.SelectToken("playabilityStatus.reason")?.Value<string>()))
-            {
-                if (playerResponseJToken.SelectToken("videoDetails.isLive")?.Value<bool>() == true)
+                var playerResponseJToken = JToken.Parse(Regex.Unescape(playerResponseMap).Replace(@"\u0026", "&"));
+                if (playerResponseJToken.SelectToken("playabilityStatus.status")?.Value<string>().ToLower() == "error")
                 {
                     yield break;
                 }
-                var streams = (playerResponseJToken.SelectToken("streamingData.formats", false)?.Children() ?? Enumerable.Empty<JToken>())
-                    .Concat(playerResponseJToken.SelectToken("streamingData.adaptiveFormats", false)?.Children() ?? Enumerable.Empty<JToken>());
-                foreach (var item in streams)
+                if (string.IsNullOrWhiteSpace(playerResponseJToken.SelectToken("playabilityStatus.reason")?.Value<string>()))
                 {
-                    var urlValue = item.SelectToken("url")?.Value<string>();
-                    if (!string.IsNullOrEmpty(urlValue))
+                    if (playerResponseJToken.SelectToken("videoDetails.isLive")?.Value<bool>() == true)
                     {
-                        var query = new SignatureQuery(urlValue, null, false);
-                        yield return new YouTubeVideo(title, query, jsPlayer);
-                        continue;
+                        yield break;
                     }
-                    var cipherValue = item.SelectToken("cipher")?.Value<string>();
-                    if (!string.IsNullOrEmpty(cipherValue))
+                    var streams = (playerResponseJToken.SelectToken("streamingData.formats", false)?.Children() ?? Enumerable.Empty<JToken>())
+                        .Concat(playerResponseJToken.SelectToken("streamingData.adaptiveFormats", false)?.Children() ?? Enumerable.Empty<JToken>());
+                    foreach (var item in streams)
                     {
-                        yield return new YouTubeVideo(title, Unscramble(cipherValue), jsPlayer);
+                        YouTubeVideo video = null;
+                        var urlValue = item.SelectToken("url")?.Value<string>();
+                        if (!string.IsNullOrEmpty(urlValue))
+                        {
+                            var query = new SignatureQuery(urlValue, null, false);
+                            video = new YouTubeVideo(title, query, jsPlayer);
+                        }
+                        var cipherValue = item.SelectToken("cipher")?.Value<string>() ?? item.SelectToken("signatureCipher")?.Value<string>();
+                        if (!string.IsNullOrEmpty(cipherValue))
+                        {
+                            video = new YouTubeVideo(title, Unscramble(cipherValue), jsPlayer);
+                        }
+#if DEBUG
+                        if (((video.Format == VideoFormat.Unknown || video.Resolution == -1) && video.AdaptiveKind != AdaptiveKind.Audio) || (video.AudioFormat == AudioFormat.Unknown && video.AdaptiveKind != AdaptiveKind.Video))
+                        {
+                            Debugger.Break();
+                        }
+#endif
+                        if (video != null)
+                        {
+                            yield return video;
+                        }
                     }
                 }
             }
@@ -139,7 +153,7 @@ namespace VideoLibrary
 
         private string ParseJsPlayer(string source)
         {
-            string jsPlayer = Json.GetKey("js", source).Replace(@"\/", "/");
+            string jsPlayer = Json.GetKey("js", source)?.Replace(@"\/", "/");
             //<script src="/yts/jsbin/player_ias-vfl9X5OgR/en_US/base.js"  name="player_ias/base" ></script>
             if (string.IsNullOrWhiteSpace(jsPlayer))
             {

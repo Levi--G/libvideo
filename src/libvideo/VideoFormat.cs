@@ -12,6 +12,7 @@ namespace VideoLibrary
         Mobile,
         Mp4,
         WebM,
+        AV01,
         Unknown
     }
 }

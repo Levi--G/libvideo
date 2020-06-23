@@ -58,6 +58,14 @@ namespace VideoLibrary
                     case 302:
                     case 303:
                     case 313:
+                    case 394:
+                    case 395:
+                    case 396:
+                    case 397:
+                    case 398:
+                    case 399:
+                    case 400:
+                    case 401:
                         return AdaptiveKind.Video;
                     case 139:
                     case 140:
@@ -136,12 +144,14 @@ namespace VideoLibrary
                     case 83:
                     case 133:
                     case 242:
+                    case 395:
                         return 240;
                     case 6:
                         return 270;
                     case 17:
                     case 160:
                     case 278:
+                    case 394:
                         return 144;
                     case 18:
                     case 34:
@@ -151,6 +161,7 @@ namespace VideoLibrary
                     case 101:
                     case 134:
                     case 243:
+                    case 396:
                         return 360;
                     case 22:
                     case 45:
@@ -160,11 +171,13 @@ namespace VideoLibrary
                     case 247:
                     case 298:
                     case 302:
+                    case 398:
                         return 720;
                     case 35:
                     case 44:
                     case 135:
                     case 244:
+                    case 397:
                         return 480;
                     case 37:
                     case 46:
@@ -172,6 +185,8 @@ namespace VideoLibrary
                     case 248:
                     case 299:
                     case 303:
+                    case 400:
+                    case 399:
                         return 1080;
                     case 38:
                         return 3072; // what
@@ -180,6 +195,7 @@ namespace VideoLibrary
                     case 138:
                     case 272:
                     case 313:
+                    case 401:
                         return 2160;
                     case 264:
                     case 271:
@@ -251,6 +267,15 @@ namespace VideoLibrary
                     case 303:
                     case 313:
                         return VideoFormat.WebM;
+                    case 394:
+                    case 395:
+                    case 396:
+                    case 397:
+                    case 398:
+                    case 399:
+                    case 400:
+                    case 401:
+                        return VideoFormat.AV01;
                     default:
                         return VideoFormat.Unknown;
                 }
