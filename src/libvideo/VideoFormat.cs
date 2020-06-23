@@ -10,8 +10,8 @@ namespace VideoLibrary
     {
         Flash,
         Mobile,
-        Mp4,
-        WebM,
+        H264,
+        VP9,
         AV01,
         Unknown
     }

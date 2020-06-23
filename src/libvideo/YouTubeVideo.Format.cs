@@ -242,7 +242,7 @@ namespace VideoLibrary
                     case 141:
                     case 298:
                     case 299:
-                        return VideoFormat.Mp4;
+                        return VideoFormat.H264;
                     case 43:
                     case 44:
                     case 45:
@@ -266,7 +266,7 @@ namespace VideoLibrary
                     case 302:
                     case 303:
                     case 313:
-                        return VideoFormat.WebM;
+                        return VideoFormat.VP9;
                     case 394:
                     case 395:
                     case 396:

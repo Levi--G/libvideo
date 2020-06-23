@@ -12,6 +12,7 @@ namespace VideoLibrary
         Aac = 1,
         Vorbis = 2,
         Unknown = 3,
-        Opus = 4
+        Opus = 4,
+        AC3 = 5
     }
 }
