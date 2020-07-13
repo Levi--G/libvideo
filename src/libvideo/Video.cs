@@ -17,7 +17,13 @@ namespace VideoLibrary
         public abstract string Title { get; }
         public abstract WebSites WebSite { get; }
         public virtual VideoFormat Format => VideoFormat.Unknown;
-        // public virtual AudioFormat AudioFormat => AudioFormat.Unknown;
+        public virtual AudioFormat AudioFormat => AudioFormat.Unknown;
+        public virtual int Resolution => -1;
+        public virtual int AudioBitrate => -1;
+        public virtual bool Is3D => false;
+        public bool IsAdaptive =>
+            this.AdaptiveKind != AdaptiveKind.None;
+        public virtual AdaptiveKind AdaptiveKind => AdaptiveKind.None;
 
         public virtual Task<string> GetUriAsync() =>
             Task.FromResult(Uri);
@@ -70,16 +76,17 @@ namespace VideoLibrary
                                 case AudioFormat.Aac:
                                     return Container.Aac;
                                 case AudioFormat.Vorbis:
-                                    return Container.SB0;
+                                    return Container.Ogg;
                                 case AudioFormat.Unknown:
                                     return Container.Unknown;
                                 case AudioFormat.Opus:
                                     return Container.Opus;
                                 case AudioFormat.AC3:
-                                    return ".ac3";
+                                    return Container.AC3;
                                 default:
                                     break;
                             }
+                            throw new NotImplementedException($"Format {AudioFormat} is unrecognized! Please file an issue at libvideo on GitHub.");
                         }
                     default:
                         throw new NotImplementedException($"Format {Format} is unrecognized! Please file an issue at libvideo on GitHub.");

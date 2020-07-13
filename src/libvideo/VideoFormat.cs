@@ -8,11 +8,12 @@ namespace VideoLibrary
 {
     public enum VideoFormat
     {
+        Unknown,
         Flash,
         Mobile,
         H264,
+        H265,
         VP9,
-        AV01,
-        Unknown
+        AV01
     }
 }

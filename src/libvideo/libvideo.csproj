@@ -1,29 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Authors>Bar Arnon</Authors>
-    <Copyright>Copyright 2018 Bar Arnon</Copyright>
+    <Authors>Levi Gillis, Bar Arnon</Authors>
+    <Copyright>Copyright 2019-2020 Levi Gillis, 2018 Bar Arnon</Copyright>
     <Description>libvideo is a fast, clean way to download YouTube videos. It is fully portable and has no dependencies.
 
-Find us on GitHub at https://github.com/i3arnon/libvideo</Description>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageIconUrl>https://github.com/i3arnon/libvideo/raw/master/icons/icon_128.png</PackageIconUrl>
+Find us on GitHub at https://github.com/Levi--G/libvideo</Description>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageIconUrl></PackageIconUrl>
     <PackageId>VideoLibrary</PackageId>
-    <PackageLicenseUrl>https://github.com/i3arnon/libvideo/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/i3arnon/libvideo</PackageProjectUrl>
-    <PackageReleaseNotes>Update decryption regex</PackageReleaseNotes>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/Levi--G/libvideo</PackageProjectUrl>
+    <PackageReleaseNotes>Added container support</PackageReleaseNotes>
     <PackageTags>youtube youtubeextractor libvideo lib libs video videos library libraries download extract get vimeo scrape scraping downloader extractor getter scraper youtubeextract videolibrary library winrt wp windows phone pcl portable class library .net framework core xamarin mono monotouch xamarin.ios ios xamarin.android android</PackageTags>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/i3arnon/libvideo</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Levi--G/libvideo</RepositoryUrl>
     <RootNamespace>VideoLibrary</RootNamespace>
     <Version>2.0.3</Version>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Title>libvideo</Title>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <PackageLicenseExpression>BSD-2-Clause</PackageLicenseExpression>
+    <PackageIcon>icon_128.png</PackageIcon>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
+    <FileVersion>3.0.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\icons\icon_128.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

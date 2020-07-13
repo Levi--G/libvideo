@@ -10,14 +10,12 @@ namespace VideoLibrary
 {
     public partial class YouTubeVideo
     {
-        //private static readonly Regex DecryptionFunctionRegex = new Regex(@"\bc\s*&&\s*d\.set\([^,]+\s*,[^(]*\(([a-zA-Z0-9$]+)\(");
         private static readonly string[] DecryptionFunctionRegex = {
             @"\bc\s*&&\s*a\.set\([^,]+,\s*(?:encodeURIComponent\s*\()?\s*([\w$]+)\(",
             @"\b[cs]\s*&&\s*[adf]\.set\([^,]+\s*,\s*encodeURIComponent\s*\(\s*([a-zA-Z0-9$]+)\(",
             @"\b[a-zA-Z0-9]+\s*&&\s*[a-zA-Z0-9]+\.set\([^,]+\s*,\s*encodeURIComponent\s*\(\s*([a-zA-Z0-9$]+)\(",
             @"([a-zA-Z0-9$]+)\s*=\s*function\(\s*a\s*\)\s*{\s*a\s*=\s*a\.split\(\s*""\s*\)"
         };
-        //private static readonly Regex FunctionRegex = new Regex(@"\w+(?:.|\[)(\""?\w+(?:\"")?)\]?\(");
         private static readonly Regex FunctionRegex = new Regex(@"\w+\.(\w+)\(");
 
         private async Task DecryptAsync(Func<DelegatingClient> makeClient)
@@ -75,35 +73,6 @@ namespace VideoLibrary
             }
 
             return signature;
-
-            //old
-            //var functionLines = GetDecryptionFunctionLines(js);
-
-            //var decryptor = new Decryptor();
-            //foreach (var functionLine in functionLines)
-            //{
-            //    if (decryptor.IsComplete)
-            //    {
-            //        break;
-            //    }
-
-            //    var match = FunctionRegex.Match(functionLine);
-            //    if (match.Success)
-            //    {
-            //        decryptor.AddFunction(js, match.Groups[1].Value);
-            //    }
-            //}
-
-            //foreach (var functionLine in functionLines)
-            //{
-            //    var match = FunctionRegex.Match(functionLine);
-            //    if (match.Success)
-            //    {
-            //        signature = decryptor.ExecuteFunction(signature, functionLine, match.Groups[1].Value);
-            //    }
-            //}
-
-            //return signature;
         }
 
         private string[] GetDecryptionFunctionLines(string js)
@@ -118,20 +87,6 @@ namespace VideoLibrary
                 }
             }
             throw new Exception("Could not find signature DecryptionFunctionLines. Please report this issue to us.");
-
-            //old
-            //var decryptionFunction = GetDecryptionFunction(js);
-            //var match =
-            //    Regex.Match(
-            //        js,
-            //        $@"(?!h\.){Regex.Escape(decryptionFunction)}=function\(\w+\)\{{(.*?)\}}",
-            //        RegexOptions.Singleline);
-            //if (!match.Success)
-            //{
-            //    throw new Exception($"{nameof(GetDecryptionFunctionLines)} failed");
-            //}
-
-            //return match.Groups[1].Value.Split(';');
         }
 
         private string GetDecryptionFunction(string js)
@@ -175,20 +130,6 @@ namespace VideoLibrary
                 {
                     type = FunctionType.Reverse;
                 }
-
-                //old
-                //if (Regex.IsMatch(js, $@"{escapedFunction}:\bfunction\b\(\w+\)"))
-                //{
-                //    type = FunctionType.Reverse;
-                //}
-                //else if (Regex.IsMatch(js, $@"{escapedFunction}:\bfunction\b\([a],b\).(\breturn\b)?.?\w+\."))
-                //{
-                //    type = FunctionType.Slice;
-                //}
-                //else if (Regex.IsMatch(js, $@"{escapedFunction}:\bfunction\b\(\w+\,\w\).\bvar\b.\bc=a\b"))
-                //{
-                //    type = FunctionType.Swap;
-                //}
 
                 if (type.HasValue)
                 {
@@ -245,14 +186,6 @@ namespace VideoLibrary
                 _stringBuilder[index % _stringBuilder.Length] = signature[0];
                 return _stringBuilder.ToString();
             }
-            //private string Swap(string signature, int index)
-            //{
-            //    _stringBuilder.Clear();
-            //    _stringBuilder.Append(signature);
-            //    _stringBuilder[0] = signature[index];
-            //    _stringBuilder[index] = signature[0];
-            //    return _stringBuilder.ToString();
-            //}
 
             private enum FunctionType
             {

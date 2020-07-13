@@ -8,7 +8,7 @@ namespace VideoLibrary
 {
     public partial class YouTubeVideo
     {
-        public bool Is3D
+        public override bool Is3D
         {
             get
             {
@@ -28,10 +28,7 @@ namespace VideoLibrary
             }
         }
 
-        public bool IsAdaptive =>
-            this.AdaptiveKind != AdaptiveKind.None;
-
-        public AdaptiveKind AdaptiveKind
+        public override AdaptiveKind AdaptiveKind
         {
             get
             {
@@ -82,7 +79,7 @@ namespace VideoLibrary
             }
         }
 
-        public int AudioBitrate
+        public override int AudioBitrate
         {
             get
             {
@@ -133,7 +130,7 @@ namespace VideoLibrary
             }
         }
 
-        public int Resolution
+        public override int Resolution
         {
             get
             {
@@ -282,7 +279,7 @@ namespace VideoLibrary
             }
         }
 
-        public AudioFormat AudioFormat
+        public override AudioFormat AudioFormat
         {
             get
             {

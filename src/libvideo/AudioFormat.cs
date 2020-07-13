@@ -8,10 +8,10 @@ namespace VideoLibrary
 {
     public enum AudioFormat
     {
-        Mp3 = 0,
-        Aac = 1,
-        Vorbis = 2,
-        Unknown = 3,
+        Unknown = 0,
+        Mp3 = 1,
+        Aac = 2,
+        Vorbis = 3,
         Opus = 4,
         AC3 = 5
     }
