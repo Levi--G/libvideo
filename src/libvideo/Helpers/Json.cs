@@ -8,6 +8,12 @@ namespace VideoLibrary.Helpers
 {
     internal static class Json
     {
+        public static bool TryGetKey(string key, string source, out string target)
+        {
+            target = GetKey(key, source);
+            return target != null;
+        }
+
         public static string GetKey(string key, string source)
         {
             // Example scenario: "key" : "value"

@@ -106,11 +106,11 @@ namespace VideoLibrary
                     }
                 }
             }
-            var playerResponseMap = Json.GetKey("player_response", source);
+            var playerResponseMap = ParsePlayerJson(source);
             if (!string.IsNullOrEmpty(playerResponseMap))
             {
-                var playerResponseJToken = JToken.Parse(Regex.Unescape(playerResponseMap).Replace(@"\u0026", "&"));
-                if (playerResponseJToken.SelectToken("playabilityStatus.status")?.Value<string>().ToLower() == "error")
+                var playerResponseJToken = JToken.Parse(playerResponseMap);
+                if (playerResponseJToken.SelectToken("playabilityStatus.status")?.Value<string>()?.ToLower() == "error")
                 {
                     yield break;
                 }
@@ -153,15 +153,14 @@ namespace VideoLibrary
 
         private string ParseJsPlayer(string source)
         {
-            string jsPlayer = Json.GetKey("js", source)?.Replace(@"\/", "/");
+            string jsPlayer = Json.GetKey("js", source)?.Replace(@"\/", "/") ?? Json.GetKey("jsUrl", source)?.Replace(@"\/", "/") ?? Json.GetKey("PLAYER_JS_URL", source)?.Replace(@"\/", "/");
             //<script src="/yts/jsbin/player_ias-vfl9X5OgR/en_US/base.js"  name="player_ias/base" ></script>
             if (string.IsNullOrWhiteSpace(jsPlayer))
             {
                 try
                 {
-                    string pattern = @"<script\s+src=""(\/yts[^""]+\.js)""\s*name=""player_ias\/base""\s*>";
-                    Match match = Regex.Match(source, pattern, RegexOptions.Multiline | RegexOptions.IgnoreCase);
-                    jsPlayer = match?.Groups.OfType<Group>().Skip(1).FirstOrDefault()?.Value;
+                    jsPlayer = GetRegex(source, @"<script\s+src=""(\/yts[^""]+\.js)""\s*name=""player_ias\/base""\s*>|<script src=""(\/s\/player\/[^\/]+\/player_ias\.vflset\/[^\/]+\/base\.js)""><\/script>", RegexOptions.Multiline | RegexOptions.IgnoreCase)
+                        ?? GetRegex(source, "<script\\s*src=\"([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)\".*name=\"player_ias/base\".*>\\s*</script>")?.Replace(@"\/", "/");
                 }
                 catch { }
             }
@@ -183,6 +182,33 @@ namespace VideoLibrary
 
             return jsPlayer;
         }
+
+        private string GetRegex(string source, string pattern, RegexOptions options = RegexOptions.None)
+        {
+            Match match = Regex.Match(source, pattern, options);
+            if (match.Success)
+            {
+                return match.Groups.OfType<Group>().Skip(1).FirstOrDefault(g => !string.IsNullOrEmpty(g?.Value))?.Value;
+            }
+            return null;
+        }
+
+        private string ParsePlayerJson(string source)
+        {
+            string playerResponseMap = null;
+            var match = GetRegex(source, @"ytplayer\.config\s*=\s*(\{\"".*\""\}\});");
+            if (!string.IsNullOrWhiteSpace(playerResponseMap) && Json.TryGetKey("player_response", match, out string json))
+            {
+                playerResponseMap = Regex.Unescape(json);
+            }
+            if (string.IsNullOrWhiteSpace(playerResponseMap))
+            {
+                playerResponseMap = GetRegex(source, @"<script .*>\s*var\s*ytInitialPlayerResponse\s*=\s*(\{\""responseContext\"".*\});<\/script>")
+                    ?? GetRegex(source, @"\[\""ytInitialPlayerResponse\""\]\s*=\s*(\{.*\});");
+            }
+            return playerResponseMap.Replace(@"\u0026", "&").Replace("\r\n", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty);
+        }
+
         [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
         // TODO: Consider making this static...
         private SignatureQuery Unscramble(string queryString)

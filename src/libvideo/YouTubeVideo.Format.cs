@@ -54,7 +54,9 @@ namespace VideoLibrary
                     case 299:
                     case 302:
                     case 303:
+                    case 308:
                     case 313:
+                    case 315:
                     case 394:
                     case 395:
                     case 396:
@@ -192,10 +194,12 @@ namespace VideoLibrary
                     case 138:
                     case 272:
                     case 313:
+                    case 315:
                     case 401:
                         return 2160;
                     case 264:
                     case 271:
+                    case 308:
                         return 1440;
                     default:
                         return -1;
@@ -262,7 +266,9 @@ namespace VideoLibrary
                     case 251:
                     case 302:
                     case 303:
+                    case 308:
                     case 313:
+                    case 315:
                         return VideoFormat.VP9;
                     case 394:
                     case 395:
